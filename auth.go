@@ -11,7 +11,11 @@ func (clt *EtcdHRCHYClient) permPath(key string) (string, error) {
 	if key != "0" && !strings.HasPrefix(key, "/") {
 		return "", ErrorInvalidKey
 	}
-	return clt.rootKey + key, nil
+
+	if clt.rootKey != "" {
+		key = "/" + clt.rootKey + key
+	}
+	return key, nil
 }
 
 func (clt *EtcdHRCHYClient) RoleGrantPermission(name string, key, rangeEnd string, ty clientv3.PermissionType) error {
@@ -58,13 +62,13 @@ func (clt *EtcdHRCHYClient) GetRolePerms(name string) ([]*Perm, error) {
 }
 
 func (clt *EtcdHRCHYClient) RoleRevokePermission(name string, key, rangeEnd string) error {
-	key, _, err := clt.ensureKey(key)
+	key, err := clt.permPath(key)
 	if err != nil {
 		return err
 	}
 
 	if rangeEnd != "" {
-		rangeEnd, _, err = clt.ensureKey(rangeEnd)
+		rangeEnd, err = clt.permPath(rangeEnd)
 		if err != nil {
 			return err
 		}

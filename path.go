@@ -10,19 +10,32 @@ func isRoot(key string) bool {
 }
 
 func checkRootKey(rootKey string) bool {
-	return rootKey != "" && !strings.HasSuffix(rootKey, "/")
+	return !strings.Contains(rootKey, "/")
+	//return rootKey != "" && !strings.HasSuffix(rootKey, "/")
 }
 
 // ensure key, return (realKey, parentKey)
-func (clt *EtcdHRCHYClient) ensureKey(key string) (string, string, error) {
-	if !strings.HasPrefix(key, "/") {
-		return "", "", ErrorInvalidKey
-	}
+func (clt *EtcdHRCHYClient) ensureKey(key string) (r1 string, r2 string, err error) {
+	//if !strings.HasPrefix(key, "/") {
+	//	return "", "", ErrorInvalidKey
+	//}
 
 	if isRoot(key) {
-		return clt.rootKey, clt.rootKey, nil
+		return "/", "/", nil
+		//return clt.rootKey, clt.rootKey, nil
 	} else {
-		realKey := clt.rootKey + key
+		realKey := WithRootKey(clt.rootKey, key)
 		return realKey, path.Clean(realKey + "/../"), nil
 	}
+}
+
+func WithRootKey(rootKey, key string) string {
+	key = strings.Trim(key, "/")
+	//key = strings.TrimPrefix(key, "/")
+	//key = strings.TrimSuffix(key, "/")
+	ret := rootKey + "/" + key
+	if rootKey != "" {
+		ret = "/" + ret
+	}
+	return ret
 }

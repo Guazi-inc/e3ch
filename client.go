@@ -2,10 +2,11 @@ package client
 
 import (
 	"errors"
+	"strings"
+
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/mvcc/mvccpb"
 	"golang.org/x/net/context"
-	"strings"
 )
 
 const (
@@ -72,8 +73,11 @@ func (clt *EtcdHRCHYClient) Clone(etcdClt *clientv3.Client) *EtcdHRCHYClient {
 
 // make sure the rootKey is a directory
 func (clt *EtcdHRCHYClient) FormatRootKey() error {
-	_, err := clt.client.Put(clt.ctx, clt.rootKey, clt.dirValue)
-	return err
+	if clt.rootKey != "" {
+		_, err := clt.client.Put(clt.ctx, clt.rootKey, clt.dirValue)
+		return err
+	}
+	return nil
 }
 
 type Node struct {
@@ -91,7 +95,7 @@ func (clt *EtcdHRCHYClient) trimRootKey(key string) string {
 
 func (clt *EtcdHRCHYClient) createNode(kv *mvccpb.KeyValue) *Node {
 	// remove rootKey prefix
-	kv.Key = []byte(clt.trimRootKey(string(kv.Key)))
+	//kv.Key = []byte(clt.trimRootKey(string(kv.Key)))
 	return &Node{
 		KeyValue: kv,
 		IsDir:    clt.isDir(kv.Value),

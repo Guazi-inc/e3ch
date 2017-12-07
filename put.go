@@ -18,12 +18,13 @@ func (clt *EtcdHRCHYClient) put(key string, value string, mustEmpty bool) error 
 
 	// parentKey should be directory
 	// key should not be directory
-	cmp := []clientv3.Cmp{
-		clientv3.Compare(
+	cmp := []clientv3.Cmp{}
+	if parentKey != "/" {
+		cmp = append(cmp, clientv3.Compare(
 			clientv3.Value(parentKey),
 			"=",
 			clt.dirValue,
-		),
+		))
 	}
 
 	if mustEmpty {

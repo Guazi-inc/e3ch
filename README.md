@@ -20,7 +20,7 @@ package main
 
 import (
 	"github.com/coreos/etcd/clientv3"
-	"github.com/soyking/e3ch"
+	"github.com/Guazi-inc/e3ch"
 )
 
 func main() {
